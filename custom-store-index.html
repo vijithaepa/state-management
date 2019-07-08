@@ -132,7 +132,6 @@
 
     store.subscribe(() => {
         const {todos, goals} = store.getState()
-        console.log('the new state is : ', todos, goals)
         document.getElementById('todos').innerHTML = ''
         document.getElementById('goals').innerHTML = ''
         todos.forEach(addTodoToDom)

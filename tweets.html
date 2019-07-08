@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>State Management - tweets store</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
+</head>
+<body>
+<div>
+    <h1>Todo list</h1>
+    <input id="todo" type="text" placeholder="Add Todo"/>
+    <button id="todoBtn">Add Todo</button>
+    <ul id="todos"></ul>
+</div>
+<div>
+    <h1>Goals</h1>
+    <input id="goal" type="text" placeholder="Add Goal"/>
+    <button id="goalBtn">Add Goal</button>
+    <ul id="goals"></ul>
+</div>
+
+<script type="text/javascript">
+    const defaultState = {
+        users: {},
+        setting: {},
+        tweets: {
+            btyxlj: {
+                id: 'btyxlj',
+                text: 'What is a jQuery?',
+                author: {
+                    name: 'Tyler McGinnis',
+                    id: 'tylermcginnis',
+                    avatar: 'twt.com/tm.png'
+                }
+            }
+        }
+    }
+
+    const users = (state = {}, action) => {
+        switch (action.type) {
+            case 'ADD_USER':
+                return state
+            case 'REMOVE_USER':
+                return state
+            default:
+                return state
+        }
+    }
+
+    const settings = (state = {}, action) => {
+        switch (action.type) {
+            case 'ADD_SETTING':
+                return state
+            case 'REMOVE_SETTING':
+                return state
+            default:
+                return state
+        }
+    }
+
+    const tweets = (state = {}, action) => {
+        switch (action.type) {
+            case 'ADD_TWEET':
+                return state
+            case 'REMOVE_TWEET':
+                return state
+            case 'UPDATE_AVATAR':
+                console.log('Update tweets ',  action, state[action.payload.tweetId])
+                return {
+                    ...state,
+                    [action.payload.tweetId]: tweet(state[action.payload.tweetId], action)
+                }
+            default:
+                return state
+        }
+    }
+
+    const tweet = (state = {}, action) => {
+        switch (action.type) {
+            case 'ADD_TWEET':
+                return state
+            case 'REMOVE_TWEET':
+                return state
+            case 'UPDATE_AVATAR':
+                console.log('Update tweet ', state, action)
+                return {
+                    ...state,
+                    author: author(state.author, action)
+                }
+            default:
+                return state
+        }
+    }
+
+    const author = (state, action) => {
+        switch (action.type) {
+            case 'UPDATE_AVATAR':
+                console.log('Update Author ', state, action)
+                return {
+                    ...state,
+                    avatar: action.payload.newAvatar
+                }
+            default:
+                return state
+        }
+    }
+
+    const reducers = (state = defaultState, action) => {
+        return {
+            users: users(state.users, action),
+            settings: settings(state.setting, action),
+            tweets: tweets(state.tweets, action)
+        }
+    }
+
+    const store = Redux.createStore(reducers)
+
+    store.subscribe(() => {
+        console.log("State changed : ", store.getState())
+    })
+
+    store.dispatch({
+        type: 'UPDATE_AVATAR',
+        payload: {
+            tweetId: "btyxlj",
+            newAvatar: 'abc.png'
+        }
+    })
+
+</script>
+</body>
+</html>
