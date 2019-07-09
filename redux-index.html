@@ -88,14 +88,36 @@
         }
     }
 
-    const app = (state = {}, action) => {
-        return {
-            todos: todos(state.todos, action),
-            goals: goals(state.goals, action)
-        }
+    // const app = (state = {}, action) => {
+    //     return {
+    //         todos: todos(state.todos, action),
+    //         goals: goals(state.goals, action)
+    //     }
+    // }
+
+    // function checker(store) {
+    //     return function (next) {
+    //         return function (action) {
+    //
+    //         }
+    //     }
+    // }
+
+    //Rather above function, below ES6 method is better
+    const checker = (store) => (next) => (action) => {
+        if (action.type === ADD_TODO && action.todo.name.toLowerCase().includes('bitcoin'))
+            return alert('Not a good idea !!!')
+
+        if (action.type === ADD_GOAL && action.goal.name.toLowerCase().includes('bitcoin'))
+            return alert('Not a good goal !!!')
+
+        return next(action)
     }
 
-    const store = Redux.createStore(app)
+    const store = Redux.createStore(Redux.combineReducers({
+        todos,
+        goals
+    }), Redux.applyMiddleware(checker))
 
     store.subscribe(() => {
         const {todos, goals} = store.getState()
@@ -149,7 +171,7 @@
     function addTodoToDom(todo) {
         const li = document.createElement('li')
         const val = document.createTextNode(todo.name)
-        const removeBtn = createRemoveBtn(()=> {
+        const removeBtn = createRemoveBtn(() => {
             store.dispatch(removeTodoAction(todo.id))
         })
 
@@ -167,7 +189,7 @@
     function addGoalToDom(goal) {
         const li = document.createElement('li')
         const val = document.createTextNode(goal.name)
-        const removeBtn = createRemoveBtn(()=> {
+        const removeBtn = createRemoveBtn(() => {
             store.dispatch(removeGoalAction(goal.id))
         })
         li.appendChild(val)
