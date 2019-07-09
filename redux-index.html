@@ -114,14 +114,33 @@
         return next(action)
     }
 
+    const logger = (store) => (next) => (action) => {
+        console.group(action.type)
+        console.log('The action : ', action)
+        const result = next(action)
+        console.log('The new state : ', store.getState())
+        // console.log('The result : ', result)
+        console.groupEnd()
+        return result
+    }
+
+    const greeting = (store) => (next) => (action) => {
+        if (action.type === ADD_TODO) {
+            return alert('Don\'t forget to [' + action.todo.name + ']!')
+        }
+        if (action.type === ADD_GOAL) {
+            return alert('That\'s a great goal!')
+        }
+        next(action)
+    }
+
     const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals
-    }), Redux.applyMiddleware(checker))
+    }), Redux.applyMiddleware(checker, logger, greeting))
 
     store.subscribe(() => {
         const {todos, goals} = store.getState()
-        console.log('the new state is : ', todos, goals)
         document.getElementById('todos').innerHTML = ''
         document.getElementById('goals').innerHTML = ''
         todos.forEach(addTodoToDom)
