@@ -22,7 +22,7 @@
     <ul id="goals"></ul>
 </div>
 
-<hr />
+<hr/>
 <div id="app"></div>
 
 <script type="text/javascript">
@@ -132,18 +132,20 @@
 
     const greeting = (store) => (next) => (action) => {
         if (action.type === ADD_TODO) {
+            next(action)
             return alert('Don\'t forget to [' + action.todo.name + ']!')
         }
         if (action.type === ADD_GOAL) {
+            next(action)
             return alert('That\'s a great goal!')
         }
-        next(action)
+
     }
 
     const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals
-    }), Redux.applyMiddleware(checker, logger, greeting))
+    }), Redux.applyMiddleware(checker, logger))
 
     store.subscribe(() => {
         const {todos, goals} = store.getState()
@@ -225,7 +227,7 @@
 </script>
 
 <script type="text/babel">
-    const List =()=> {
+    const List = () => {
         return (
             <ul>
                 <li>List</li>
@@ -234,22 +236,55 @@
     }
 
     class Todos extends React.Component {
+
+        addItem = (e) => {
+            e.preventDefault()
+            const name = this.input.value
+            this.input.value = ''
+            this.props.store.dispatch(addTodoAction({
+                id: generateId(),
+                name,
+                complete: false
+            }))
+        }
+
         render() {
-            return(
+            return (
                 <div>
-                    Todos
-                    <List />
+
+                    <h1>Todo list</h1>
+                    <input type="text"
+                           placeholder="Add Todo"
+                           ref={(input) => this.input = input}/>
+                    <button onClick={this.addItem}>Add Todo</button>
+
+                    <List/>
                 </div>
             )
         }
     }
 
     class Goals extends React.Component {
+
+        addItem = (e)=> {
+            e.preventDefault()
+            const name = this.input.value
+            this.addItem.value = ''
+
+            this.props.store.dispatch(addGoalAction({
+                id: generateId(),
+                name,
+            }))
+        }
         render() {
-            return(
+            return (
                 <div>
-                    Goals
-                    <List />
+                    <h1>Goals list</h1>
+                    <input type="text"
+                    placeholder="add goal"
+                    ref={(input) => this.input = input}/>
+                    <button onClick={this.addItem}>Add Goal</button>
+                    <List/>
                 </div>
             )
         }
@@ -257,17 +292,17 @@
 
     class App extends React.Component {
         render() {
-            return(
+            return (
                 <div>
-                    <Todos/>
-                    <Goals/>
+                    <Todos store={this.props.store}/>
+                    <Goals store={this.props.store}/>
                 </div>
             )
         }
     }
 
     ReactDOM.render(
-        <App />,
+        <App store={store}/>,
         document.getElementById('app')
     )
 </script>
