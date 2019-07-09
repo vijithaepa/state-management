@@ -227,15 +227,25 @@
 </script>
 
 <script type="text/babel">
-    const List = () => {
+    const List = (props) => {
         return (
             <ul>
-                <li>List</li>
+                {props.items.map((item, index) => {
+                    return <li key={index}>
+                        <span>{item.name}</span>
+                        <button onClick={() => props.removeItem(item)}>x</button>
+                    </li>
+                })}
+
             </ul>
         )
     }
 
     class Todos extends React.Component {
+
+        removeItem = (todo) => {
+            this.props.store.dispatch(removeTodoAction(todo.id))
+        }
 
         addItem = (e) => {
             e.preventDefault()
@@ -258,7 +268,7 @@
                            ref={(input) => this.input = input}/>
                     <button onClick={this.addItem}>Add Todo</button>
 
-                    <List/>
+                    <List items={this.props.todos} removeItem={this.removeItem}/>
                 </div>
             )
         }
@@ -266,7 +276,11 @@
 
     class Goals extends React.Component {
 
-        addItem = (e)=> {
+        removeItem = (goal) => {
+            this.props.store.dispatch(removeGoalAction(goal.id))
+        }
+
+        addItem = (e) => {
             e.preventDefault()
             const name = this.input.value
             this.addItem.value = ''
@@ -276,24 +290,25 @@
                 name,
             }))
         }
+
         render() {
             return (
                 <div>
                     <h1>Goals list</h1>
                     <input type="text"
-                    placeholder="add goal"
-                    ref={(input) => this.input = input}/>
+                           placeholder="add goal"
+                           ref={(input) => this.input = input}/>
                     <button onClick={this.addItem}>Add Goal</button>
-                    <List/>
+                    <List items={this.props.goals} removeItem={this.removeItem}/>
                 </div>
             )
         }
     }
 
     class App extends React.Component {
-        componentDidMount(){
+        componentDidMount() {
             const {store} = this.props
-            store.subscribe(()=> this.forceUpdate())
+            store.subscribe(() => this.forceUpdate())
         }
 
         render() {
