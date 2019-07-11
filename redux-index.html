@@ -100,6 +100,15 @@
         }
     }
 
+    const loading =(state = true, action) => {
+        switch (action.type) {
+            case RECEIVE_DATA:
+                return false;
+            default:
+                return true
+        }
+
+    }
     // function checker(store) {
     //     return function (next) {
     //         return function (action) {
@@ -150,7 +159,8 @@
 
     const store = Redux.createStore(Redux.combineReducers({
         todos,
-        goals
+        goals,
+        loading
     }), Redux.applyMiddleware(checker, logger))
 
 </script>
@@ -174,18 +184,18 @@
 
     class Todos extends React.Component {
 
-        componentDidMount() {
-            const { store } = this.props
-
-            Promise.all([
-                API.fetchTodos(),
-                API.fetchGoals()
-            ]).then(([ todos, goals ]) => {
-                store.dispatch(receiveDataAction(todos, goals))
-                console.log('Todos', todos)
-                console.log('Goals', goals)
-            })
-        }
+        // componentDidMount() {
+        //     const { store } = this.props
+        //
+        //     Promise.all([
+        //         API.fetchTodos(),
+        //         API.fetchGoals()
+        //     ]).then(([ todos, goals ]) => {
+        //         store.dispatch(receiveDataAction(todos, goals))
+        //         console.log('Todos', todos)
+        //         console.log('Goals', goals)
+        //     })
+        // }
 
         removeItem = (todo) => {
             this.props.store.dispatch(removeTodoAction(todo.id))
@@ -260,11 +270,24 @@
         componentDidMount() {
             const {store} = this.props
             store.subscribe(() => this.forceUpdate())
+            Promise.all([
+                    API.fetchTodos(),
+                    API.fetchGoals()
+                ]).then(([ todos, goals ]) => {
+                    store.dispatch(receiveDataAction(todos, goals))
+                    console.log('Todos', todos)
+                    console.log('Goals', goals)
+                })
+
         }
 
         render() {
             const {store} = this.props
-            const {todos, goals} = store.getState()
+            const {todos, goals, loading} = store.getState()
+
+            if(loading === true) {
+                return <h2>Loading</h2>
+            }
 
             return (
                 <div>
