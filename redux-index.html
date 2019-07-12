@@ -184,17 +184,23 @@
 
         addItem = (e) => {
             e.preventDefault()
-            const name = this.input.value
-            this.input.value = ''
-            this.props.store.dispatch(addTodoAction({
-                id: generateId(),
-                name,
-                complete: false
-            }))
+            return API.saveTodo(this.input.value)
+                .then((todo)=> {
+                    this.props.store.dispatch(addTodoAction(todo))
+                    this.input.value = ''
+                })
+                .catch(()=> {
+                    alert("sorry about it, try again later !!!")
+                })
         }
 
-        toggleItem = (item) => {
-            this.props.store.dispatch(toggleTodoAction(item.id))
+        toggleItem = (todo) => {
+            this.props.store.dispatch(toggleTodoAction(todo.id))
+            return API.saveTodoToggle(todo.id)
+                .catch(()=>{
+                    this.props.store.dispatch(toggleTodoAction(todo.id))
+                    alert("Failed to save toggle todo")
+                })
         }
 
         render() {
@@ -228,13 +234,14 @@
 
         addItem = (e) => {
             e.preventDefault()
-            const name = this.input.value
-            this.input.value = ''
-
-            this.props.store.dispatch(addGoalAction({
-                id: generateId(),
-                name,
-            }))
+            return API.saveGoal(this.input.value)
+                .then((goal)=> {
+                    this.props.store.dispatch(addGoalAction(goal))
+                    this.input.value = ''
+                })
+                .catch(()=> {
+                    alert("sorry about it, try again later !!!")
+                })
         }
 
         render() {
