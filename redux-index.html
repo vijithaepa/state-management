@@ -152,7 +152,7 @@
 
     // How Thunk middleware works
     const thunk = (store) => (next) => (action) => {
-        if(typeof action === 'function') {
+        if (typeof action === 'function') {
             return action(store.dispatch)
         }
         return next(action)
@@ -169,7 +169,7 @@
         todos,
         goals,
         loading
-    }), Redux.applyMiddleware(thunk, checker, logger))
+    }), Redux.applyMiddleware(ReduxThunk.default, checker, logger))
 
 </script>
 
