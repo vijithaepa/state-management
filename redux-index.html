@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/react-dom@16.3.0-alpha.1/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
     <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
+    <script src="https://unpkg.com/redux-thunk@2.2.0/dist/redux-thunk.min.js"></script>
 </head>
 <body>
 
@@ -67,6 +68,17 @@
             type: RECEIVE_DATA,
             todos,
             goals
+        }
+    }
+
+    const handleDeleteTodo = (todo) => {
+        return (dispatch) => {
+            dispatch(removeTodoAction(todo.id))
+            return API.deleteTodo(todo.id)
+                .catch(() => {
+                    dispatch(addTodoAction(todo))
+                    alert("error on deleting todo!!!")
+                })
         }
     }
 
@@ -138,6 +150,14 @@
         return result
     }
 
+    // How Thunk middleware works
+    const thunk = (store) => (next) => (action) => {
+        if(typeof action === 'function') {
+            return action(store.dispatch)
+        }
+        return next(action)
+    }
+
     // const app = (state = {}, action) => {
     //     return {
     //         todos: todos(state.todos, action),
@@ -149,7 +169,7 @@
         todos,
         goals,
         loading
-    }), Redux.applyMiddleware(checker, logger))
+    }), Redux.applyMiddleware(thunk, checker, logger))
 
 </script>
 
@@ -173,23 +193,17 @@
     class Todos extends React.Component {
 
         removeItem = (todo) => {
-            const {store} = this.props
-            store.dispatch(removeTodoAction(todo.id))
-            return API.deleteTodo(todo.id)
-                .catch(() => {
-                        store.dispatch(addTodoAction(todo))
-                        alert("error on deleting todo!!!")
-                    })
+            this.props.store.dispatch(handleDeleteTodo(todo))
         }
 
         addItem = (e) => {
             e.preventDefault()
             return API.saveTodo(this.input.value)
-                .then((todo)=> {
+                .then((todo) => {
                     this.props.store.dispatch(addTodoAction(todo))
                     this.input.value = ''
                 })
-                .catch(()=> {
+                .catch(() => {
                     alert("sorry about it, try again later !!!")
                 })
         }
@@ -197,7 +211,7 @@
         toggleItem = (todo) => {
             this.props.store.dispatch(toggleTodoAction(todo.id))
             return API.saveTodoToggle(todo.id)
-                .catch(()=>{
+                .catch(() => {
                     this.props.store.dispatch(toggleTodoAction(todo.id))
                     alert("Failed to save toggle todo")
                 })
@@ -226,7 +240,7 @@
         removeItem = (goal) => {
             this.props.store.dispatch(removeGoalAction(goal.id))
             return API.deleteGoal(goal.id)
-                .catch(()=> {
+                .catch(() => {
                     this.props.store.dispatch(addGoalAction(goal))
                     alert("error on deleting goal!!!")
                 })
@@ -235,11 +249,11 @@
         addItem = (e) => {
             e.preventDefault()
             return API.saveGoal(this.input.value)
-                .then((goal)=> {
+                .then((goal) => {
                     this.props.store.dispatch(addGoalAction(goal))
                     this.input.value = ''
                 })
-                .catch(()=> {
+                .catch(() => {
                     alert("sorry about it, try again later !!!")
                 })
         }
