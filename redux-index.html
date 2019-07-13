@@ -90,7 +90,7 @@
 
     const handleAddTodo = (name, cb) => {
         return (dispatch) => {
-            return API.saveTodo(name)
+            API.saveTodo(name)
                 .then((todo) => {
                     dispatch(addTodoAction(todo))
                     cb()
@@ -125,6 +125,17 @@
         }
     }
 
+    const handleReceiveData = () => {
+        return (dispatch) => {
+            return Promise.all([
+                API.fetchTodos(),
+                API.fetchGoals()
+            ]).then(([todos, goals]) => {
+                dispatch(receiveDataAction(todos, goals))
+            })
+        }
+
+    }
 
     // Reducers
     const todos = (state = [], action) => {
@@ -280,17 +291,8 @@
 
     class App extends React.Component {
         componentDidMount() {
-            const {store} = this.props
+            this.props.store.dispatch(handleReceiveData())
             store.subscribe(() => this.forceUpdate())
-            Promise.all([
-                API.fetchTodos(),
-                API.fetchGoals()
-            ]).then(([todos, goals]) => {
-                store.dispatch(receiveDataAction(todos, goals))
-                console.log('Todos', todos)
-                console.log('Goals', goals)
-            })
-
         }
 
         render() {
