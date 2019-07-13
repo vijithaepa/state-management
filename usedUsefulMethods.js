@@ -1,4 +1,3 @@
-
 // How Thunk middleware works
 const thunk = (store) => (next) => (action) => {
     if (typeof action === 'function') {
@@ -24,6 +23,7 @@ function checker(store) {
         }
     }
 }
+
 // 2 - Es6 way
 const checker = (store) => (next) => (action) => {
 
@@ -35,6 +35,10 @@ function generateId() {
 }
 
 // Implementations of ReactRedux.Provider, ReactRedux.connect
+//Provider makes it possible for Redux to pass data from the store to any React components that need it. It uses React’s context feature to make this work.
+//
+// connect() connects a React component to the Redux store. The mapStateToProps() function allows us to specify which state from the store you want passed to
+// your React component, while the mapDispatchToProps() function allows us to bind dispatch to action creators before they ever hit the component.
 const Context = React.createContext();
 
 function connect(mapStateToProps) {
@@ -70,6 +74,7 @@ function connect(mapStateToProps) {
                 )
             }
         }
+
         return ConnectedComponent
     }
 }
