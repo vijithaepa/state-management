@@ -16,11 +16,6 @@
 
 <script type="text/javascript">
 
-    // DOM Code
-    function generateId() {
-        return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
-    }
-
     // ======= App code =======
     const ADD_TODO = 'ADD_TODO';
     const REMOVE_TODO = 'REMOVE_TODO';
@@ -82,6 +77,55 @@
         }
     }
 
+    const handleDeleteGoal = (goal) => {
+        return (dispatch) => {
+            dispatch(removeGoalAction(goal.id))
+            return API.deleteGoal(goal.id)
+                .catch(() => {
+                    dispatch(addGoalAction(goal))
+                    alert("error on deleting Goal!!!")
+                })
+        }
+    }
+
+    const handleAddTodo = (name, cb) => {
+        return (dispatch) => {
+            return API.saveTodo(name)
+                .then((todo) => {
+                    dispatch(addTodoAction(todo))
+                    cb()
+                })
+                .catch(() => {
+                    alert("sorry about it, try again later !!!")
+                })
+        }
+    }
+
+    const handleAddGoal = (name, cb) => {
+        return (dispatch) => {
+            return API.saveGoal(name)
+                .then((todo) => {
+                    dispatch(addGoalAction(todo))
+                    cb()
+                })
+                .catch(() => {
+                    alert("sorry about it, try again later !!!")
+                })
+        }
+    }
+
+    const handleToggleTodo = (todo) => {
+        return (dispatch) => {
+            dispatch(toggleTodoAction(todo.id))
+            return API.saveTodoToggle(todo.id)
+                .catch(() => {
+                    dispatch(toggleTodoAction(todo.id))
+                    alert("Failed to save toggle todo")
+                })
+        }
+    }
+
+
     // Reducers
     const todos = (state = [], action) => {
         switch (action.type) {
@@ -121,15 +165,8 @@
         }
 
     }
-    // function checker(store) {
-    //     return function (next) {
-    //         return function (action) {
-    //
-    //         }
-    //     }
-    // }
 
-    //Rather above function, below ES6 method is better
+    // Middleware actions
     const checker = (store) => (next) => (action) => {
         if (action.type === ADD_TODO && action.todo.name.toLowerCase().includes('bitcoin'))
             return alert('Not a good idea !!!')
@@ -150,21 +187,7 @@
         return result
     }
 
-    // How Thunk middleware works
-    const thunk = (store) => (next) => (action) => {
-        if (typeof action === 'function') {
-            return action(store.dispatch)
-        }
-        return next(action)
-    }
-
-    // const app = (state = {}, action) => {
-    //     return {
-    //         todos: todos(state.todos, action),
-    //         goals: goals(state.goals, action)
-    //     }
-    // }
-
+    // Create Store with Reducers
     const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals,
@@ -198,23 +221,14 @@
 
         addItem = (e) => {
             e.preventDefault()
-            return API.saveTodo(this.input.value)
-                .then((todo) => {
-                    this.props.store.dispatch(addTodoAction(todo))
-                    this.input.value = ''
-                })
-                .catch(() => {
-                    alert("sorry about it, try again later !!!")
-                })
+            this.props.store.dispatch(handleAddTodo(
+                this.input.value,
+                () => this.input.value = ''
+            ))
         }
 
         toggleItem = (todo) => {
-            this.props.store.dispatch(toggleTodoAction(todo.id))
-            return API.saveTodoToggle(todo.id)
-                .catch(() => {
-                    this.props.store.dispatch(toggleTodoAction(todo.id))
-                    alert("Failed to save toggle todo")
-                })
+            this.props.store.dispatch(handleToggleTodo(todo))
         }
 
         render() {
@@ -238,24 +252,15 @@
     class Goals extends React.Component {
 
         removeItem = (goal) => {
-            this.props.store.dispatch(removeGoalAction(goal.id))
-            return API.deleteGoal(goal.id)
-                .catch(() => {
-                    this.props.store.dispatch(addGoalAction(goal))
-                    alert("error on deleting goal!!!")
-                })
+            this.props.store.dispatch(handleDeleteGoal(goal))
         }
 
         addItem = (e) => {
             e.preventDefault()
-            return API.saveGoal(this.input.value)
-                .then((goal) => {
-                    this.props.store.dispatch(addGoalAction(goal))
-                    this.input.value = ''
-                })
-                .catch(() => {
-                    alert("sorry about it, try again later !!!")
-                })
+            this.props.store.dispatch(handleAddGoal(
+                this.input.value,
+                () => this.input.value = ''
+            ))
         }
 
         render() {
